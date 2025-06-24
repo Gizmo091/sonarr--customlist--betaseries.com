@@ -1,5 +1,17 @@
 # BetaSeries to Sonarr Custom List Generator
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Gizmo091/sonarr--customlist--betaseries.com/graphs/commit-activity)
+[![Maintainer](https://img.shields.io/badge/maintainer-Mathieu%20Vedie-blue)](https://github.com/Gizmo091)
+
+[![Node.js Version](https://img.shields.io/badge/node.js-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Gizmo091/sonarr--customlist--betaseries.com/issues)
+
+[![GitHub latest commit](https://badgen.net/github/last-commit/Gizmo091/sonarr--customlist--betaseries.com)](https://github.com/Gizmo091/sonarr--customlist--betaseries.com/commit/)
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mathieuvedie)
+
 This service allows you to generate Sonarr-compatible custom lists from your BetaSeries library. It fetches your TV shows from BetaSeries and provides them in the format expected by Sonarr's custom list feature.
 
 ## 🌐 Demo
