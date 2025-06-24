@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BETASERIES_API_KEY = process.env.BETASERIES_API_KEY;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 function getUserConfigFile(userId) {
     return path.join(DATA_DIR, 'configs', `${userId}.json`);
