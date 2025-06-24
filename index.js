@@ -251,11 +251,10 @@ async function fetchBetaSeriesShows(userId, status, configId, favoritesOnly = fa
 
 function transformToSonarrFormat(shows) {
     return shows.map(show => ({
-        title: show.title,
-        imdb_id: show.imdb_id || null,
-        tvdbId: show.thetvdb_id || null,
-        poster_url: show.images?.poster || null
-    })).filter(show => show.imdb_id || show.tvdbId);
+        // title: show.title,
+        // poster_url: show.images?.poster || null,
+        tvdbId: show.thetvdb_id ? String(show.thetvdb_id) : null
+    })).filter(show => show.tvdbId);
 }
 
 app.get('/api/list/:id', async (req, res) => {
