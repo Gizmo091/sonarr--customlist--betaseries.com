@@ -13,8 +13,7 @@ services:
       - PORT=3000
       - DATA_DIR=/app/data
     volumes:
-      - app_data:/app/data
-      - app_source:/app
+      - ./data:/app/data
     command: >
       sh -c "
         echo 'Downloading latest release from GitHub...' &&
@@ -43,8 +42,4 @@ services:
       timeout: 10s
       retries: 3
 
-volumes:
-  app_data:
-    driver: local
-  app_source:
-    driver: local
+# volumes: not needed with bind mounts

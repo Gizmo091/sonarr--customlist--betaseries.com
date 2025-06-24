@@ -40,7 +40,7 @@
 
 ## Data Persistence
 
-Configuration and cache data are stored in Docker volumes and persist between container restarts.
+Configuration and cache data are stored in the `./data` directory on your host machine and persist between container restarts. This directory will be created automatically when the container starts.
 
 ## Updating
 
