@@ -269,6 +269,10 @@ app.get('/api/list/:id', async (req, res) => {
         
         // Send compact JSON without pretty printing (like Listrr)
         res.set('Content-Type', 'application/json');
+        // Prevent client-side caching
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
         res.send(JSON.stringify(sonarrList));
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch shows' });
