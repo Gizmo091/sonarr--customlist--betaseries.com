@@ -4,12 +4,12 @@
 
 1. **Download the docker-compose.yml file**:
    ```bash
-   curl -O https://raw.githubusercontent.com/mathieuvedie/betaserie-sonarr-custom-list-generator/main/docker-compose.yml
+   curl -O https://raw.githubusercontent.com/Gizmo091/sonarr--customlist--betaseries.com/main/docker-compose.yml
    ```
 
 2. **Create environment file**:
    ```bash
-   curl -O https://raw.githubusercontent.com/mathieuvedie/betaserie-sonarr-custom-list-generator/main/.env.docker
+   curl -O https://raw.githubusercontent.com/Gizmo091/sonarr--customlist--betaseries.com/main/.env.docker
    cp .env.docker .env
    ```
 

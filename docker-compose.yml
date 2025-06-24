@@ -19,13 +19,13 @@ services:
       sh -c "
         echo 'Downloading latest release from GitHub...' &&
         apk add --no-cache curl jq &&
-        LATEST_RELEASE=$$(curl -s https://api.github.com/repos/mathieuvedie/betaserie-sonarr-custom-list-generator/releases/latest | jq -r '.tag_name // \"main\"') &&
+        LATEST_RELEASE=$$(curl -s https://api.github.com/repos/Gizmo091/sonarr--customlist--betaseries.com/releases/latest | jq -r '.tag_name // \"main\"') &&
         echo \"Latest release: $$LATEST_RELEASE\" &&
         if [ \"$$LATEST_RELEASE\" = \"main\" ]; then
           echo 'No releases found, using main branch...' &&
-          DOWNLOAD_URL=\"https://github.com/mathieuvedie/betaserie-sonarr-custom-list-generator/archive/refs/heads/main.tar.gz\"
+          DOWNLOAD_URL=\"https://github.com/Gizmo091/sonarr--customlist--betaseries.com/archive/refs/heads/main.tar.gz\"
         else
-          DOWNLOAD_URL=\"https://github.com/mathieuvedie/betaserie-sonarr-custom-list-generator/archive/refs/tags/$$LATEST_RELEASE.tar.gz\"
+          DOWNLOAD_URL=\"https://github.com/Gizmo091/sonarr--customlist--betaseries.com/archive/refs/tags/$$LATEST_RELEASE.tar.gz\"
         fi &&
         echo \"Downloading from: $$DOWNLOAD_URL\" &&
         curl -L $$DOWNLOAD_URL | tar -xz --strip-components=1 &&
