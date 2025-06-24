@@ -251,36 +251,8 @@ async function fetchBetaSeriesShows(userId, status, configId, favoritesOnly = fa
 
 function transformToSonarrFormat(shows) {
     return shows.map(show => ({
-        // "id": 27600,
-        // "thetvdb_id": 396390,
-        // "imdb_id": "tt13991232",
-        // "themoviedb_id": 118357,
-        // "slug": "y-1883",
-        // "title": "1883",
-        // "original_title": "1883",
-        // "description": "La famille Dutton s'embarque pour un voyage vers l'ouest américain à travers les Grandes Plaines fuyant la pauvreté pour chercher un meilleur avenir au sein de la terre promise de l'Amérique - le Montana.",
-        // "seasons": "1",
-        // title: show.title,
-        // poster_url: show.images?.poster || null,
-
-
-        /*public int ImportListId { get; set; }
-        public string ImportList { get; set; }
-        public string Title { get; set; }
-        public int Year { get; set; }
-        public int TvdbId { get; set; }
-        public int TmdbId { get; set; }
-        public string ImdbId { get; set; }
-        public int MalId { get; set; }
-        public int AniListId { get; set; }
-        public DateTime ReleaseDate { get; set; }
-        public List<Season> Seasons { get; set; }
-         */
-        Title: show.title,
-        TvdbId: show.thetvdb_id,
-        TmdbId: show.themoviedb_id,
-        ImdbId: show.imdb_id
-    })).filter(show => show.TvdbId);
+        tvdbId: show.thetvdb_id ? String(show.thetvdb_id) : null
+    })).filter(show => show.tvdbId);
 }
 
 app.get('/api/list/:id', async (req, res) => {
@@ -295,7 +267,9 @@ app.get('/api/list/:id', async (req, res) => {
         const { config } = result;
         const sonarrList = await fetchBetaSeriesShows(config.userId, config.status, id, config.favoritesOnly, config.locale || 'en');
         
-        res.json(sonarrList);
+        // Send compact JSON without pretty printing (like Listrr)
+        res.set('Content-Type', 'application/json');
+        res.send(JSON.stringify(sonarrList));
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch shows' });
     }
