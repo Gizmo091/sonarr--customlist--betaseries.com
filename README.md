@@ -126,7 +126,7 @@ npm run dev
 
 - Keep your `.env` file secure and never commit it to version control
 - The BetaSeries API key should be kept confidential
-- Consider implementing authentication if deploying this service publicly
+- When deploying publicly, consider adding rate limiting or IP restrictions to prevent abuse of the public list endpoints
 
 
 ## License
