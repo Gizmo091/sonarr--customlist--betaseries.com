@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetaSeries to Sonarr List Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .configurations {
+            margin-top: 40px;
+        }
+        .config-cache-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .cache-timer {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .cache-timer.expired {
+            color: #dc3545;
+        }
+        .clear-cache-btn {
+            background-color: #6c757d;
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .clear-cache-btn:hover {
+            background-color: #5a6268;
+        }
+        .config-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .config-url {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .copy-btn {
+            background-color: #28a745;
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+        .logout-btn {
+            background-color: #6c757d;
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background-color: #5a6268;
+        }
+        .message {
+            padding: 15px 20px;
+            border-radius: 4px;
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .auth-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .auth-section h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .auth-form {
+            display: block;
+        }
+        .auth-form .form-group {
+            margin-bottom: 15px;
+        }
+        .auth-form button {
+            background-color: #1976d2;
+            margin-top: 10px;
+        }
+        .auth-form button:hover {
+            background-color: #1565c0;
+        }
+        .user-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #90caf9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .main-content {
+            display: none;
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.2s;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideIn 0.2s;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-footer button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+        }
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // i18n translations
+        const translations = {
+            en: {
+                title: "BetaSeries to Sonarr List Generator",
+                loginTitle: "Login to BetaSeries",
+                loginLabel: "BetaSeries Login:",
+                passwordLabel: "Password:",
+                loginButton: "Login",
+                logoutButton: "Logout",
+                loginPrompt: "Please login with your BetaSeries account to manage your configurations.",
+                statusLabel: "Status:",
+                showTypeLabel: "Show type:",
+                allShows: "All shows",
+                favoriteShows: "My favorite shows",
+                generateButton: "Generate List URL",
+                configurationsTitle: "Your Configurations",
+                noConfigurations: "No configurations yet.",
+                status: "Status:",
+                cache: "Cache:",
+                expired: "Expired",
+                noCache: "No cache",
+                clearCache: "Clear Cache",
+                copyUrl: "Copy URL",
+                delete: "Delete",
+                deleteModalTitle: "Confirm Deletion",
+                deleteModalText: "Are you sure you want to delete this configuration?",
+                cancel: "Cancel",
+                confirmDelete: "Delete",
+                favoritesOnly: "(Favorites only)",
+                // Status translations
+                current: "Current",
+                active: "Active",
+                archived: "Archived",
+                archived_and_completed: "Archived and Completed",
+                archived_and_not_started: "Archived and Not Started",
+                completed: "Completed",
+                active_and_completed: "Active and Completed",
+                not_started: "Not Started",
+                stopped: "Stopped"
+            },
+            fr: {
+                title: "Générateur de listes BetaSeries vers Sonarr",
+                loginTitle: "Connexion à BetaSeries",
+                loginLabel: "Identifiant BetaSeries:",
+                passwordLabel: "Mot de passe:",
+                loginButton: "Se connecter",
+                logoutButton: "Se déconnecter",
+                loginPrompt: "Veuillez vous connecter avec votre compte BetaSeries pour gérer vos configurations.",
+                statusLabel: "Statut:",
+                showTypeLabel: "Type de séries:",
+                allShows: "Toutes les séries",
+                favoriteShows: "Mes séries favorites",
+                generateButton: "Générer l'URL de la liste",
+                configurationsTitle: "Vos configurations",
+                noConfigurations: "Aucune configuration pour le moment.",
+                status: "Statut:",
+                cache: "Cache:",
+                expired: "Expiré",
+                noCache: "Pas de cache",
+                clearCache: "Vider le cache",
+                copyUrl: "Copier l'URL",
+                delete: "Supprimer",
+                deleteModalTitle: "Confirmer la suppression",
+                deleteModalText: "Êtes-vous sûr de vouloir supprimer cette configuration?",
+                cancel: "Annuler",
+                confirmDelete: "Supprimer",
+                favoritesOnly: "(Favoris seulement)",
+                // Status translations
+                current: "En cours",
+                active: "Actif",
+                archived: "Archivé",
+                archived_and_completed: "Archivé et terminé",
+                archived_and_not_started: "Archivé et non commencé",
+                completed: "Terminé",
+                active_and_completed: "Actif et terminé",
+                not_started: "Non commencé",
+                stopped: "Arrêté"
+            }
+        };
+        
+        let currentLocale = 'en';
+        
+        function t(key) {
+            return translations[currentLocale][key] || translations.en[key] || key;
+        }
+        
+        function updateUILanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
+                    if (element.type === 'submit' || element.type === 'button') {
+                        element.textContent = t(key);
+                    } else {
+                        element.placeholder = t(key);
+                    }
+                } else if (element.tagName === 'OPTION') {
+                    element.textContent = t(key);
+                } else {
+                    element.textContent = t(key);
+                }
+            });
+        }
+    </script>
+    <div class="container">
+        <h1 data-i18n="title">BetaSeries to Sonarr List Generator</h1>
+        
+        <div id="message" class="message"></div>
+        
+        <div id="authSection" class="auth-section">
+            <h3 data-i18n="loginTitle">Login to BetaSeries</h3>
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <label for="login" data-i18n="loginLabel">BetaSeries Login:</label>
+                    <input type="text" id="login" required placeholder="Username or email">
+                </div>
+                <div class="form-group">
+                    <label for="password" data-i18n="passwordLabel">Password:</label>
+                    <input type="password" id="password" required placeholder="Password">
+                </div>
+                <button type="submit" data-i18n="loginButton">Login</button>
+            </form>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <div id="userInfoText"></div>
+                <button class="logout-btn" onclick="logout()" data-i18n="logoutButton">Logout</button>
+            </div>
+        </div>
+        
+        <div id="loginPrompt" class="login-prompt">
+            <p data-i18n="loginPrompt">Please login with your BetaSeries account to manage your configurations.</p>
+        </div>
+        
+        <div id="mainContent" class="main-content">
+            <form id="configForm">
+                <div class="form-group">
+                    <label for="status" data-i18n="statusLabel">Status:</label>
+                    <select id="status" required>
+                        <option value="">Select a status</option>
+                        <option value="current" data-i18n="current">Current</option>
+                        <option value="active" data-i18n="active">Active</option>
+                        <option value="archived" data-i18n="archived">Archived</option>
+                        <option value="archived_and_completed" data-i18n="archived_and_completed">Archived and Completed</option>
+                        <option value="archived_and_not_started" data-i18n="archived_and_not_started">Archived and Not Started</option>
+                        <option value="completed" data-i18n="completed">Completed</option>
+                        <option value="active_and_completed" data-i18n="active_and_completed">Active and Completed</option>
+                        <option value="not_started" data-i18n="not_started">Not Started</option>
+                        <option value="stopped" data-i18n="stopped">Stopped</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="showType" data-i18n="showTypeLabel">Type de séries:</label>
+                    <select id="showType" required>
+                        <option value="all" data-i18n="allShows">Toutes les séries</option>
+                        <option value="favorites" data-i18n="favoriteShows">Mes séries favorites</option>
+                    </select>
+                </div>
+                
+                <button type="submit" data-i18n="generateButton">Generate List URL</button>
+            </form>
+            
+            <div class="configurations">
+                <h2 data-i18n="configurationsTitle">Your Configurations</h2>
+                <div id="configList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="deleteModalTitle">Confirm Deletion</h3>
+            </div>
+            <div class="modal-body" data-i18n="deleteModalText">
+                Are you sure you want to delete this configuration? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeDeleteModal()" data-i18n="cancel">Cancel</button>
+                <button class="btn-danger" onclick="confirmDelete()" data-i18n="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let pendingDeleteId = null;
+        let cacheData = {};
+        let timerInterval = null;
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function checkSession() {
+            try {
+                const response = await fetch('/api/session');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    currentUser = data;
+                    
+                    // Set locale from session
+                    if (data.locale) {
+                        currentLocale = data.locale.startsWith('fr') ? 'fr' : 'en';
+                        updateUILanguage();
+                    }
+                    
+                    showAuthenticatedUI();
+                } else {
+                    showLoginUI();
+                }
+            } catch (error) {
+                console.log(error);
+                showMessage('Failed to check session', 'error');
+            }
+        }
+        
+        function showAuthenticatedUI() {
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userInfoText').innerHTML = 
+                `<strong>Logged in as:</strong> ${currentUser.login} (ID: ${currentUser.userId})`;
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadCacheStatus().then(() => {
+                loadConfigurations();
+                startCacheTimer();
+            });
+        }
+        
+        function showLoginUI() {
+            document.getElementById('authForm').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('loginPrompt').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            currentUser = null;
+            cacheData = {};
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                if (response.ok) {
+                    showMessage('Logged out successfully', 'success');
+                    showLoginUI();
+                }
+            } catch (error) {
+                showMessage('Failed to logout', 'error');
+            }
+        }
+        
+        async function loadConfigurations() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch('/api/configurations');
+                
+                if (response.status === 401) {
+                    showLoginUI();
+                    return;
+                }
+                
+                const configs = await response.json();
+                
+                const listEl = document.getElementById('configList');
+                if (configs.length === 0) {
+                    listEl.innerHTML = `<p>${t('noConfigurations')}</p>`;
+                    return;
+                }
+                
+                listEl.innerHTML = configs.map(config => {
+                    const cacheInfo = cacheData[config.id];
+                    let cacheDisplay = '';
+                    
+                    if (cacheInfo) {
+                        const isExpired = cacheInfo.expired;
+                        const timerClass = isExpired ? 'expired' : '';
+                        const timeDisplay = isExpired ? t('expired') : 
+                            `<span class="cache-timer ${timerClass}" data-expires="${cacheInfo.expires_in}">${formatTime(cacheInfo.expires_in)}</span>`;
+                        
+                        cacheDisplay = `
+                            <div class="config-cache-info">
+                                ${t('cache')} ${timeDisplay}
+                                <button class="clear-cache-btn" onclick="clearCache('${config.id}')">${t('clearCache')}</button>
+                            </div>
+                        `;
+                    } else {
+                        cacheDisplay = `<div class="config-cache-info">${t('noCache')}</div>`;
+                    }
+                    
+                    const statusText = t(config.status) || config.status.replace(/_/g, ' ');
+                    const favoritesText = config.favoritesOnly ? ` ${t('favoritesOnly')}` : '';
+                    
+                    return `
+                        <div class="config-item">
+                            <div>
+                                <strong>${t('status')}</strong> ${statusText}${favoritesText}
+                                <div class="config-url">${config.url}</div>
+                                ${cacheDisplay}
+                            </div>
+                            <div>
+                                <button class="copy-btn" onclick="copyToClipboard('${config.url}')">${t('copyUrl')}</button>
+                                <button class="delete-btn" onclick="deleteConfig('${config.id}')">${t('delete')}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                showMessage('Failed to load configurations', 'error');
+            }
+        }
+        
+        function deleteConfig(id) {
+            pendingDeleteId = id;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            pendingDeleteId = null;
+        }
+        
+        async function confirmDelete() {
+            if (!pendingDeleteId) return;
+            
+            try {
+                const response = await fetch(`/api/configurations/${pendingDeleteId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('Configuration deleted successfully', 'success');
+                    loadConfigurations();
+                    closeDeleteModal();
+                } else {
+                    showMessage('Failed to delete configuration', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to delete configuration', 'error');
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('URL copied to clipboard!', 'success');
+            }).catch(() => {
+                showMessage('Failed to copy URL', 'error');
+            });
+        }
+        
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const status = document.getElementById('status').value;
+            const showType = document.getElementById('showType').value;
+            const favoritesOnly = showType === 'favorites';
+            
+            try {
+                const response = await fetch('/api/configurations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status, favoritesOnly })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showMessage(`List created! URL: ${result.url}`, 'success');
+                    document.getElementById('configForm').reset();
+                    await loadCacheStatus();
+                    loadConfigurations();
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Failed to create configuration', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to create configuration', 'error');
+            }
+        });
+        
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ login, password })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    currentUser = result;
+                    
+                    // Set locale from user preferences
+                    if (result.locale) {
+                        currentLocale = result.locale.startsWith('fr') ? 'fr' : 'en';
+                        updateUILanguage();
+                    }
+                    
+                    showMessage('Login successful!', 'success');
+                    document.getElementById('authForm').reset();
+                    showAuthenticatedUI();
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Authentication failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to authenticate', 'error');
+            }
+        });
+        
+        async function loadCacheStatus() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch('/api/cache');
+                
+                if (response.status === 401) {
+                    showLoginUI();
+                    return;
+                }
+                
+                cacheData = await response.json();
+            } catch (error) {
+                showMessage('Failed to load cache status', 'error');
+            }
+        }
+        
+        function formatTime(seconds) {
+            if (seconds <= 0) return '0:00';
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function startCacheTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                // Update cache data
+                for (const configId in cacheData) {
+                    if (cacheData[configId].expires_in > 0) {
+                        cacheData[configId].expires_in--;
+                        if (cacheData[configId].expires_in <= 0) {
+                            cacheData[configId].expired = true;
+                        }
+                    }
+                }
+                
+                // Update UI timers
+                document.querySelectorAll('.cache-timer:not(.expired)').forEach(timer => {
+                    const expires = parseInt(timer.getAttribute('data-expires'));
+                    if (expires > 0) {
+                        const newExpires = expires - 1;
+                        timer.setAttribute('data-expires', newExpires);
+                        if (newExpires <= 0) {
+                            timer.className = 'cache-timer expired';
+                            timer.textContent = 'Expired';
+                        } else {
+                            timer.textContent = formatTime(newExpires);
+                        }
+                    }
+                });
+            }, 1000);
+        }
+        
+        async function clearCache(configId) {
+            try {
+                const response = await fetch(`/api/cache/${configId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage(`Cache cleared for configuration`, 'success');
+                    await loadCacheStatus();
+                    loadConfigurations();
+                } else {
+                    showMessage('Failed to clear cache', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to clear cache', 'error');
+            }
+        }
+        
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        }
+        
+        // Initialize UI language
+        updateUILanguage();
+        
+        // Check session on page load
+        checkSession();
+    </script>
+</body>
+</html>

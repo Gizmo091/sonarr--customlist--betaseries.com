@@ -1,0 +1,7 @@
+node_modules/
+.env
+data/configs/
+data/cache/
+data/configurations.json
+data/cache.json
+*.log
