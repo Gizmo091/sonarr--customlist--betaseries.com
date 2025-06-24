@@ -13,6 +13,30 @@ const BETASERIES_API_KEY = process.env.BETASERIES_API_KEY;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 
+// Helper function to get the correct protocol (handling reverse proxy)
+function getProtocol(req) {
+    // Check for X-Forwarded-Proto header first (common reverse proxy header)
+    const forwardedProto = req.get('X-Forwarded-Proto');
+    if (forwardedProto) {
+        return forwardedProto.toLowerCase();
+    }
+    
+    // Check for X-Forwarded-SSL header
+    const forwardedSsl = req.get('X-Forwarded-SSL');
+    if (forwardedSsl && forwardedSsl.toLowerCase() === 'on') {
+        return 'https';
+    }
+    
+    // Check for X-Forwarded-Port header (if 443, likely HTTPS)
+    const forwardedPort = req.get('X-Forwarded-Port');
+    if (forwardedPort === '443') {
+        return 'https';
+    }
+    
+    // Fall back to req.protocol
+    return req.protocol;
+}
+
 function getUserConfigFile(userId) {
     return path.join(DATA_DIR, 'configs', `${userId}.json`);
 }
@@ -20,6 +44,9 @@ function getUserConfigFile(userId) {
 function getUserCacheFile(userId, configId) {
     return path.join(DATA_DIR, 'cache', `${userId}_${configId}.json`);
 }
+
+// Trust reverse proxy for correct protocol detection
+app.set('trust proxy', true);
 
 app.use(express.json());
 
@@ -295,7 +322,7 @@ app.post('/api/configurations', async (req, res) => {
         
         res.json({
             id,
-            url: `${req.protocol}://${req.get('host')}/api/list/${id}`
+            url: `${getProtocol(req)}://${req.get('host')}/api/list/${id}`
         });
     } catch (error) {
         console.error(error);
@@ -314,7 +341,7 @@ app.get('/api/configurations', async (req, res) => {
         const list = Object.entries(configs).map(([id, config]) => ({
             id,
             ...config,
-            url: `${req.protocol}://${req.get('host')}/api/list/${id}`
+            url: `${getProtocol(req)}://${req.get('host')}/api/list/${id}`
         }));
         
         res.json(list);

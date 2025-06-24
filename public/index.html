@@ -241,6 +241,36 @@
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+        
+        /* Loader/Spinner styles */
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        .loader-dark {
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #333;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading-text {
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -579,6 +609,13 @@
         async function confirmDelete() {
             if (!pendingDeleteId) return;
             
+            const deleteBtn = document.querySelector('.btn-danger');
+            const originalText = deleteBtn.textContent;
+            
+            // Show loader
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<span class="loader"></span>' + t('confirmDelete');
+            
             try {
                 const response = await fetch(`/api/configurations/${pendingDeleteId}`, {
                     method: 'DELETE'
@@ -586,13 +623,17 @@
                 
                 if (response.ok) {
                     showMessage('Configuration deleted successfully', 'success');
-                    loadConfigurations();
+                    await loadConfigurations();
                     closeDeleteModal();
                 } else {
                     showMessage('Failed to delete configuration', 'error');
                 }
             } catch (error) {
                 showMessage('Failed to delete configuration', 'error');
+            } finally {
+                // Hide loader
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = originalText;
             }
         }
         
@@ -606,6 +647,13 @@
         
         document.getElementById('configForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Show loader
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span>' + t('generateButton');
             
             const status = document.getElementById('status').value;
             const showType = document.getElementById('showType').value;
@@ -625,18 +673,29 @@
                     showMessage(`List created! URL: ${result.url}`, 'success');
                     document.getElementById('configForm').reset();
                     await loadCacheStatus();
-                    loadConfigurations();
+                    await loadConfigurations();
                 } else {
                     const error = await response.json();
                     showMessage(error.error || 'Failed to create configuration', 'error');
                 }
             } catch (error) {
                 showMessage('Failed to create configuration', 'error');
+            } finally {
+                // Hide loader
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         });
         
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Show loader
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span>' + t('loginButton');
             
             const login = document.getElementById('login').value;
             const password = document.getElementById('password').value;
@@ -669,6 +728,10 @@
                 }
             } catch (error) {
                 showMessage('Failed to authenticate', 'error');
+            } finally {
+                // Hide loader
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         });
         
@@ -728,6 +791,13 @@
         }
         
         async function clearCache(configId) {
+            const cacheBtn = event.target;
+            const originalText = cacheBtn.textContent;
+            
+            // Show loader
+            cacheBtn.disabled = true;
+            cacheBtn.innerHTML = '<span class="loader-dark loader"></span>' + t('clearCache');
+            
             try {
                 const response = await fetch(`/api/cache/${configId}`, {
                     method: 'DELETE'
@@ -736,12 +806,16 @@
                 if (response.ok) {
                     showMessage(`Cache cleared for configuration`, 'success');
                     await loadCacheStatus();
-                    loadConfigurations();
+                    await loadConfigurations();
                 } else {
                     showMessage('Failed to clear cache', 'error');
                 }
             } catch (error) {
                 showMessage('Failed to clear cache', 'error');
+            } finally {
+                // Hide loader
+                cacheBtn.disabled = false;
+                cacheBtn.textContent = originalText;
             }
         }
         
