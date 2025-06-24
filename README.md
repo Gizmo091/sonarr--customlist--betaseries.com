@@ -114,7 +114,6 @@ Configurations and cache are stored in JSON files within the data directory. By 
 - **Local development**: Use default `./data`
 - **Custom path**: `/var/app/betaseries-data`
 - **Docker**: `/app/data`
-- **Render**: `/opt/render/project/data`
 
 ## Development
 
@@ -129,57 +128,6 @@ npm run dev
 - The BetaSeries API key should be kept confidential
 - Consider implementing authentication if deploying this service publicly
 
-## Deployment on Render
-
-### Step-by-step deployment guide:
-
-1. **Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Prepare for Render deployment"
-   git push origin main
-   ```
-
-2. **Create Render account**: Go to [render.com](https://render.com) and sign up
-
-3. **Create new Web Service**:
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Select your repository
-
-4. **Configure the service**:
-   - **Name**: `betaseries-sonarr-list` (or your preferred name)
-   - **Environment**: `Node`
-   - **Region**: Choose closest to your location
-   - **Branch**: `main`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-
-5. **Set Environment Variables**:
-   In the "Environment" section, add:
-   ```
-   BETASERIES_API_KEY=your_actual_api_key
-   SESSION_SECRET=a_very_long_random_string
-   DATA_DIR=/opt/render/project/data
-   ```
-
-6. **Deploy**: Click "Create Web Service"
-
-7. **Get your URL**: Once deployed, Render will provide a URL like:
-   `https://your-app-name.onrender.com`
-
-### Important Notes for Production:
-
-- **Data Persistence**: Files in `/data` will be lost on restart
-- **Consider PostgreSQL**: For persistent data, add a PostgreSQL database
-- **SSL**: Render provides HTTPS automatically
-- **Custom Domain**: Available on paid plans
-
-### Free Tier Limitations:
-
-- Apps sleep after 15 minutes of inactivity
-- 750 hours/month (enough for most personal use)
-- Slower startup time after sleeping
 
 ## License
 
