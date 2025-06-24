@@ -2,6 +2,12 @@
 
 This service allows you to generate Sonarr-compatible custom lists from your BetaSeries library. It fetches your TV shows from BetaSeries and provides them in the format expected by Sonarr's custom list feature.
 
+## 🌐 Demo
+
+Try the live demo interface: **[https://bslg.vedielaute.fr/](https://bslg.vedielaute.fr/)**
+
+You can test the service without installing anything locally!
+
 ## Features
 
 - Fetch TV shows from any BetaSeries user's library
