@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BETASERIES_API_KEY = process.env.BETASERIES_API_KEY;
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
 function getUserConfigFile(userId) {
@@ -526,4 +526,5 @@ app.delete('/api/cache', async (req, res) => {
 app.listen(PORT, async () => {
     await ensureDataDirectories();
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Data directory: ${DATA_DIR}`);
 });

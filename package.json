@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "Generate Sonarr custom lists from BetaSeries user libraries",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -16,5 +21,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "keywords": ["betaseries", "sonarr", "api", "tv-shows"],
+  "author": "Your Name",
+  "license": "MIT"
 }
