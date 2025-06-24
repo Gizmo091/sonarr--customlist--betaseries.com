@@ -253,8 +253,9 @@ function transformToSonarrFormat(shows) {
     return shows.map(show => ({
         title: show.title,
         imdb_id: show.imdb_id || null,
+        tvdbId: show.thetvdb_id || null,
         poster_url: show.images?.poster || null
-    })).filter(show => show.imdb_id);
+    })).filter(show => show.imdb_id || show.tvdbId);
 }
 
 app.get('/api/list/:id', async (req, res) => {
