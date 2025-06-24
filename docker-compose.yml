@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  betaseries-sonarr:
+    image: node:18-alpine
+    container_name: betaseries-sonarr-list
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      - BETASERIES_API_KEY=${BETASERIES_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET:-changeme_super_secret_key}
+      - PORT=3000
+      - DATA_DIR=/app/data
+    volumes:
+      - app_data:/app/data
+      - app_source:/app
+    command: >
+      sh -c "
+        echo 'Downloading latest release from GitHub...' &&
+        apk add --no-cache curl jq &&
+        LATEST_RELEASE=$$(curl -s https://api.github.com/repos/mathieuvedie/betaserie-sonarr-custom-list-generator/releases/latest | jq -r '.tag_name // \"main\"') &&
+        echo \"Latest release: $$LATEST_RELEASE\" &&
+        if [ \"$$LATEST_RELEASE\" = \"main\" ]; then
+          echo 'No releases found, using main branch...' &&
+          DOWNLOAD_URL=\"https://github.com/mathieuvedie/betaserie-sonarr-custom-list-generator/archive/refs/heads/main.tar.gz\"
+        else
+          DOWNLOAD_URL=\"https://github.com/mathieuvedie/betaserie-sonarr-custom-list-generator/archive/refs/tags/$$LATEST_RELEASE.tar.gz\"
+        fi &&
+        echo \"Downloading from: $$DOWNLOAD_URL\" &&
+        curl -L $$DOWNLOAD_URL | tar -xz --strip-components=1 &&
+        echo 'Installing dependencies...' &&
+        npm install --production &&
+        echo 'Creating data directory...' &&
+        mkdir -p /app/data &&
+        echo 'Starting application...' &&
+        npm start
+      "
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  app_data:
+    driver: local
+  app_source:
+    driver: local
