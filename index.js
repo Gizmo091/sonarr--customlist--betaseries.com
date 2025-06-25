@@ -117,6 +117,40 @@ async function getCachedData(userId, configId) {
     return null;
 }
 
+async function cleanupOldCacheFiles() {
+    try {
+        const cacheDir = path.join(DATA_DIR, 'cache');
+        const files = await fs.readdir(cacheDir);
+        const now = Date.now();
+        let cleanedCount = 0;
+        
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                const filePath = path.join(cacheDir, file);
+                try {
+                    const stats = await fs.stat(filePath);
+                    const fileAge = now - stats.mtime.getTime();
+                    
+                    // Delete cache files older than CACHE_DURATION
+                    if (fileAge > CACHE_DURATION) {
+                        await fs.unlink(filePath);
+                        cleanedCount++;
+                        console.log(`Cleaned up old cache file: ${file}`);
+                    }
+                } catch (error) {
+                    console.error(`Error processing cache file ${file}:`, error);
+                }
+            }
+        }
+        
+        if (cleanedCount > 0) {
+            console.log(`Cache cleanup: removed ${cleanedCount} old cache files`);
+        }
+    } catch (error) {
+        console.error('Error during cache cleanup:', error);
+    }
+}
+
 async function setCachedData(userId, configId, data) {
     await saveConfigCache(userId, configId, data);
 }
@@ -370,6 +404,18 @@ app.delete('/api/configurations/:id', async (req, res) => {
         delete configs[id];
         await saveUserConfigurations(req.session.userId, configs);
         
+        // Delete the cache file for this configuration
+        const cacheFile = getUserCacheFile(req.session.userId, id);
+        try {
+            await fs.unlink(cacheFile);
+            console.log(`Deleted cache file for configuration ${id}`);
+        } catch (error) {
+            // Ignore if file doesn't exist
+            if (error.code !== 'ENOENT') {
+                console.error(`Failed to delete cache file for ${id}:`, error);
+            }
+        }
+        
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete configuration' });
@@ -554,8 +600,25 @@ app.delete('/api/cache', async (req, res) => {
     }
 });
 
+// Background cache cleanup task
+function startCacheCleanupTask() {
+    console.log('Starting background cache cleanup task (runs every minute)');
+    
+    // Run cleanup every minute
+    setInterval(async () => {
+        try {
+            await cleanupOldCacheFiles();
+        } catch (error) {
+            console.error('Background cache cleanup error:', error);
+        }
+    }, 60 * 1000); // 60 seconds
+}
+
 app.listen(PORT, async () => {
     await ensureDataDirectories();
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Data directory: ${DATA_DIR}`);
+    
+    // Start background cache cleanup task
+    startCacheCleanupTask();
 });
